@@ -28,12 +28,10 @@ function pickWave() {
   if (id === 'spike' && WAVE_DIR.id !== 'hard') id = 'normal';
   const phase = WAVE_PHASES[id];
   const span = phase.min + Math.random() * (phase.max - phase.min);
-  const changed = id !== WAVE_DIR.id;
   WAVE_DIR.id = id;
   WAVE_DIR.target = phase.t;
   WAVE_DIR.left = span;
   WAVE_DIR.label = phase.label;
-  if (changed && typeof banner === 'function') banner(phase.label);
 }
 
 function tickWaves(dt) {

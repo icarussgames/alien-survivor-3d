@@ -100,6 +100,7 @@ function shootAt(target) {
 function nearest() {
   let best = null, bd = 1e9;
   enemies.forEach(function(e){
+    if (e.kind === 'rock') return;
     const d = (e.x - player.x) ** 2 + (e.y - player.y) ** 2;
     if (d < bd) { bd = d; best = e; }
   });
