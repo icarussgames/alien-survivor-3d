@@ -71,6 +71,7 @@ function collectPickup(g) {
     return;
   }
   if (kind === 'star') {
+    player.starMax = 5;
     player.star = 5;
     banner('ESTRELLA');
     beep(740, 0.16, 'square', 0.06);

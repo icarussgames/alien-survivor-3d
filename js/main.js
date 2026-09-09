@@ -138,7 +138,7 @@ function startRun() {
     x:300, y:300, r:14, hp:maxHp(), maxHp:maxHp(),
     ang:0, ifr:0, shoot:0.25, cone:0.5,
     mods:{ dmg:0, rate:0, mag:0, spread:0 },
-    heal: owned('cura0')|0, bombs: owned('bomba0')|0, hitFlash:0, healFlash:0, star:0
+    heal: owned('cura0')|0, bombs: owned('bomba0')|0, hitFlash:0, healFlash:0, star:0, starMax:5
   };
   flashes = [];
   gems = []; shots = []; particles = []; exhaust = []; orbs = [];

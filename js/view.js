@@ -113,8 +113,24 @@ function makeShip() {
   starRing.position.y = 0.12;
   starRing.visible = false;
   g.add(starRing);
+  const starBarBg = new THREE.Mesh(
+    new THREE.BoxGeometry(1.4, 0.08, 0.1),
+    new THREE.MeshBasicMaterial({ color: 0x2a2208 })
+  );
+  starBarBg.position.set(0, 0.12, 1.05);
+  starBarBg.visible = false;
+  const starBar = new THREE.Mesh(
+    new THREE.BoxGeometry(1.4, 0.09, 0.12),
+    new THREE.MeshBasicMaterial({ color: 0xffd24a })
+  );
+  starBar.position.set(0, 0.12, 1.05);
+  starBar.visible = false;
+  g.add(starBarBg);
+  g.add(starBar);
   g.userData.mats = { body: bodyMat, edge: edgeMat, glass: glass.material };
   g.userData.starRing = starRing;
+  g.userData.starBar = starBar;
+  g.userData.starBarBg = starBarBg;
   g.userData.glass = glass;
   return g;
 }
@@ -282,12 +298,14 @@ function place(mesh, x, y, h) {
 function enemyScaleVisual(e) {
   const s = Math.max(0.75, (e.r || 13) / 14);
   if (e.kind === 'boss') return s * 1.15;
-  if (e.kind === 'mid') return s * 1.25;
+  if (e.kind === 'mid') return s * 0.85;
   if (e.kind === 'rock') return s * 1.1;
   return s;
 }
 
 function barColor(e) {
+  if (e.kind === 'rock') return 0x9a9a9a;
+  if (e.kind === 'mid') return 0xffaa44;
   const bars = Math.max(1, e.bars || 1);
   const per = e.max / bars;
   const leftLayers = Math.max(1, Math.ceil(e.hp / per - 1e-6));
@@ -313,16 +331,35 @@ function syncEnemies() {
     if (e.kind === 'rock') mesh.rotation.y = (e.spin || 1) * (window.aliveTime || 0);
     else mesh.rotation.y = -Math.atan2(dz, dx);
     mesh.userData.mat.emissiveIntensity = (e.flash || 0) > 0 ? 2.4 : 0.7;
-    const bars = Math.max(1, e.bars || 1);
-    const per = e.max / bars;
-    const leftLayers = Math.max(1, Math.ceil(e.hp / per - 1e-6));
-    const fill = Math.max(0.04, Math.min(1, (e.hp - (leftLayers - 1) * per) / per));
+    let fill = 1;
+    if (e.kind === 'rock') {
+      fill = 1;
+    } else if (e.kind === 'mid') {
+      const fm = e.fuseMax || 15;
+      fill = Math.max(0.04, Math.min(1, (e.fuse == null ? fm : e.fuse) / fm));
+    } else {
+      const bars = Math.max(1, e.bars || 1);
+      const per = e.max / bars;
+      const leftLayers = Math.max(1, Math.ceil(e.hp / per - 1e-6));
+      fill = Math.max(0.04, Math.min(1, (e.hp - (leftLayers - 1) * per) / per));
+    }
     mesh.userData.barFill.scale.x = fill;
     mesh.userData.barFill.position.x = -1.15 / 2 + (1.15 * fill) / 2;
     mesh.userData.barFill.position.z = 0.95;
     mesh.userData.barBg.position.z = 0.95;
     mesh.userData.barFill.material.color.setHex(barColor(e));
-    mesh.userData.barBg.visible = bars > 0;
+    mesh.userData.barBg.visible = true;
+    if (e.kind === 'mid') {
+      const left = e.fuse == null ? 15 : e.fuse;
+      const rate = left > 4 ? 2.2 : (left > 1.2 ? 7 : 18);
+      const blink = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin((window.aliveTime || 0) * rate * Math.PI * 2));
+      mesh.userData.barFill.material.opacity = blink;
+      mesh.userData.barFill.material.transparent = true;
+      mesh.userData.mat.emissiveIntensity = 0.4 + blink * 1.6;
+    } else {
+      mesh.userData.barFill.material.opacity = 1;
+      mesh.userData.barFill.material.transparent = false;
+    }
     const telling = (e.tell || 0) > 0;
     mesh.userData.tell.visible = telling;
     if (telling) {
@@ -531,6 +568,8 @@ function placeShipIdle() {
   ship.rotation.set(0, Math.sin(performance.now() / 900) * 0.2, 0);
   ship.position.set(0, 0.35 * OBJ, 0);
   ship.userData.starRing.visible = false;
+  if (ship.userData.starBar) ship.userData.starBar.visible = false;
+  if (ship.userData.starBarBg) ship.userData.starBarBg.visible = false;
   lockCamera();
 }
 
@@ -542,9 +581,15 @@ function placeShipPlay() {
   applySkin();
   const starOn = window.player.star > 0;
   ship.userData.starRing.visible = starOn;
+  ship.userData.starBar.visible = starOn;
+  ship.userData.starBarBg.visible = starOn;
   if (starOn) {
     const pulse = 1 + Math.sin((window.aliveTime || 0) * 14) * 0.08;
     ship.userData.starRing.scale.set(pulse, pulse, pulse);
+    const max = window.player.starMax || 5;
+    const fill = Math.max(0.04, Math.min(1, window.player.star / max));
+    ship.userData.starBar.scale.x = fill;
+    ship.userData.starBar.position.x = -1.4 / 2 + (1.4 * fill) / 2;
   }
   const blink = window.player.ifr > 0 && !starOn && Math.floor(window.player.ifr * 16) % 2 === 0;
   ship.visible = !blink;

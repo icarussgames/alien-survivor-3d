@@ -91,11 +91,11 @@ function spawnMidBoss() {
   if (edge === 3) { x = -22; y = Math.random() * H; }
   const sc = enemyScale();
   enemies.push({
-    x:x, y:y, r:18, hp:28 * sc.hp, max:28 * sc.hp, bars:1,
-    spd: 26 * sc.spd, kind:'mid', shoot:0, flash:0, whip:0, tell:0,
-    tellColor:'#ff8844', explodeR:52
+    x:x, y:y, r:12, hp:1, max:1, bars:1,
+    spd: 30 * sc.spd, kind:'mid', shoot:0, flash:0, whip:0, tell:0,
+    tellColor:'#ff8844', explodeR:70, fuse:15, fuseMax:15
   });
-  banner('MID BOSS');
+  banner('BOMBA');
   beep(120, 0.18, 'sawtooth', 0.06);
 }
 
@@ -110,7 +110,7 @@ function spawnAsteroid() {
   const spd = 28 + Math.random() * 22;
   enemies.push({
     x:x, y:y, r:16 + Math.random() * 8,
-    hp:22, max:22, bars:1, spd:spd, kind:'rock', block:true,
+    hp:99, max:99, bars:1, spd:spd, kind:'rock', block:true, solid:true,
     vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
     shoot:0, flash:0, whip:0, tell:0, spin: (Math.random() - 0.5) * 2
   });
@@ -127,8 +127,8 @@ function maybeMidBoss() {
 function maybeAsteroid(dt) {
   rockT -= dt;
   if (rockT > 0) return;
-  rockT = 7 + Math.random() * 6;
-  if (Math.random() < 0.55) spawnAsteroid();
+  rockT = (7 + Math.random() * 6) / 0.7;
+  if (Math.random() < 0.55 * 0.7) spawnAsteroid();
 }
 
 function maybeBoss() {
@@ -159,13 +159,18 @@ function enemyFire(e, spread) {
 }
 
 function midExplode(e) {
-  boomRings.push({ x:e.x, y:e.y, reach:e.explodeR || 52, life:0.35, max:0.35 });
-  if (player && Math.hypot(player.x - e.x, player.y - e.y) < (e.explodeR || 52) + player.r) {
+  const reach = e.explodeR || 70;
+  boomRings.push({ x:e.x, y:e.y, reach:reach, life:0.42, max:0.42 });
+  if (player && Math.hypot(player.x - e.x, player.y - e.y) < reach + player.r) {
     if (!(player.star > 0)) hurt(40);
   }
-  flashAt(e.x, e.y, 28, 'rgba(255,120,40,.95)');
-  for (let i = 0; i < 12; i++) {
-    particles.push({ x:e.x, y:e.y, vx:(Math.random()-0.5)*220, vy:(Math.random()-0.5)*220, life:0.4, c:'#ff8844', s:5 });
+  enemies.slice().forEach(function(o) {
+    if (o === e || o.kind === 'rock' || o.kind === 'boss') return;
+    if (Math.hypot(o.x - e.x, o.y - e.y) < reach + o.r) hitEnemy(o, Math.max(o.hp, 1));
+  });
+  flashAt(e.x, e.y, 34, 'rgba(255,120,40,.95)');
+  for (let i = 0; i < 14; i++) {
+    particles.push({ x:e.x, y:e.y, vx:(Math.random()-0.5)*260, vy:(Math.random()-0.5)*260, life:0.45, c:'#ff8844', s:5 });
   }
   beep(90, 0.16, 'sawtooth', 0.07);
   const i = enemies.indexOf(e);
@@ -202,9 +207,13 @@ function updateEnemies(dt) {
     if (e.kind === 'shooter' && dist < 170) want = dist < 120 ? -e.spd * 0.4 : 0;
     if (e.kind === 'boss' && dist < 140) want = 0;
     if (e.kind === 'whip' && dist < WHIP_REACH - 14) want = 0;
-    if (e.kind === 'mid' && dist < (e.explodeR || 52)) {
-      midExplode(e);
-      return;
+    if (e.kind === 'mid') {
+      e.fuse = (e.fuse == null ? 15 : e.fuse) - dt;
+      const near = dist < e.r + player.r + 2;
+      if (e.fuse <= 0 || near) {
+        midExplode(e);
+        return;
+      }
     }
     e.x += (dx / dist) * want * dt;
     e.y += (dy / dist) * want * dt;
@@ -239,6 +248,10 @@ function updateEnemies(dt) {
 }
 
 function hitEnemy(e, dmg) {
+  if (e.kind === 'rock' || e.solid) {
+    flashAt(e.x, e.y, e.r + 4, 'rgba(180,180,180,.5)');
+    return;
+  }
   e.hp -= dmg;
   e.flash = 0.12;
   flashAt(e.x, e.y, e.r + 6, 'rgba(255,255,255,.9)');
