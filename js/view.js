@@ -549,15 +549,20 @@ function tickRoll(dt) {
   const start = new THREE.Vector3(wx(roll.x), 0.35 * OBJ, wz(roll.y));
   const toward = new THREE.Vector3(0, 1, 0);
   const perp = new THREE.Vector3(0, 0, 1);
+  const side = new THREE.Vector3(1, 0, 0);
   const radius = SHIP_LEN * OBJ * 3;
+  const sway = radius;
   const center = start.clone().addScaledVector(toward, radius);
   const theta = u * Math.PI * 2;
   const pos = center.clone()
     .addScaledVector(toward, -Math.cos(theta) * radius)
-    .addScaledVector(perp, Math.sin(theta) * radius);
-  const tangent = toward.clone().multiplyScalar(Math.sin(theta))
-    .addScaledVector(perp, Math.cos(theta))
-    .normalize();
+    .addScaledVector(perp, Math.sin(theta) * radius)
+    .addScaledVector(side, Math.sin(theta) * sway);
+  const tangent = new THREE.Vector3(
+    Math.cos(theta) * sway,
+    Math.sin(theta) * radius,
+    Math.cos(theta) * radius
+  ).normalize();
   ship.visible = true;
   ship.position.copy(pos);
   ship.scale.set(SHIP, SHIP, SHIP);
