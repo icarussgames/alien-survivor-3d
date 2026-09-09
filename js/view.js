@@ -139,11 +139,10 @@ const ship = makeShip();
 scene.add(ship);
 
 const enemyGeo = {
-  body: new THREE.CapsuleGeometry(0.32, 0.35, 4, 8),
-  box: new THREE.BoxGeometry(0.7, 0.28, 0.45),
   eye: new THREE.SphereGeometry(0.1, 8, 8),
   horn: new THREE.ConeGeometry(0.1, 0.38, 6),
-  spike: new THREE.ConeGeometry(0.12, 0.55, 6)
+  spike: new THREE.ConeGeometry(0.12, 0.55, 6),
+  sideCone: new THREE.ConeGeometry(0.22, 0.55, 7)
 };
 
 function makeEnemyMesh(kind) {
@@ -155,44 +154,112 @@ function makeEnemyMesh(kind) {
   if (kind === 'boss') { color = 0xff3355; emissive = 0x440014; }
   if (kind === 'mid') { color = 0xff7722; emissive = 0x552200; }
   if (kind === 'rock') { color = 0x8a8478; emissive = 0x221e18; }
-  const mat = new THREE.MeshStandardMaterial({ color: color, emissive: emissive, roughness: kind === 'rock' ? 0.92 : 0.42 });
-  let body;
+  const mat = new THREE.MeshStandardMaterial({
+    color: color,
+    emissive: emissive,
+    emissiveIntensity: 0.7,
+    metalness: kind === 'rock' ? 0.05 : 0.35,
+    roughness: kind === 'rock' ? 0.92 : 0.4
+  });
+  const accent = new THREE.MeshStandardMaterial({
+    color: kind === 'normal' ? 0xa8ff7a : color,
+    emissive: emissive,
+    emissiveIntensity: 0.85,
+    metalness: 0.45,
+    roughness: 0.28
+  });
+
   if (kind === 'rock') {
-    body = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 0), mat);
+    const body = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 0), mat);
+    g.add(body);
   } else if (kind === 'mid') {
-    body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), mat);
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), mat);
     body.scale.set(1.15, 0.85, 1.15);
-  } else {
-    body = new THREE.Mesh(kind === 'shooter' ? enemyGeo.box : enemyGeo.body, mat);
-    if (kind !== 'shooter') body.rotation.z = Math.PI / 2;
-    if (kind === 'whip') body.scale.set(1.2, 0.72, 0.7);
-  }
-  g.add(body);
-  if (kind !== 'rock') {
-    const eyeMat = new THREE.MeshStandardMaterial({ color: kind === 'mid' ? 0xffcc66 : 0xff4466, emissive: kind === 'mid' ? 0xaa5500 : 0x661122 });
-    const eye = new THREE.Mesh(enemyGeo.eye, eyeMat);
-    eye.position.set(kind === 'boss' ? 0.42 : 0.28, kind === 'mid' ? 0.35 : 0.14, 0);
-    eye.scale.setScalar(kind === 'boss' ? 1.6 : (kind === 'mid' ? 1.3 : 1));
-    g.add(eye);
-  }
-  if (kind === 'shooter') {
+    g.add(body);
+    const fuse = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 0.35, 6),
+      new THREE.MeshStandardMaterial({ color: 0xffcc66, emissive: 0xaa5500 })
+    );
+    fuse.position.set(0, 0.55, 0);
+    g.add(fuse);
+  } else if (kind === 'normal') {
+    // Green scout: square hull + two cones on each side (ship-like silhouette).
+    const hull = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.28, 0.72), mat);
+    g.add(hull);
+    const cabin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.34, 0.18, 0.34),
+      new THREE.MeshStandardMaterial({ color: 0x1a5022, emissive: 0x0a2810, metalness: 0.5, roughness: 0.3 })
+    );
+    cabin.position.set(0.06, 0.2, 0);
+    g.add(cabin);
+    const glass = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.1, 0.28),
+      new THREE.MeshStandardMaterial({ color: 0xb6ff7a, emissive: 0x44aa22, roughness: 0.15 })
+    );
+    glass.position.set(0.28, 0.24, 0);
+    g.add(glass);
+    function sideCones(sign) {
+      // Two cones per side, pointing outward (±Z), staggered fore/aft.
+      [-0.18, 0.18].forEach(function(fx) {
+        const c = new THREE.Mesh(enemyGeo.sideCone, accent);
+        c.rotation.x = sign * Math.PI / 2;
+        c.position.set(fx, 0.02, sign * 0.58);
+        g.add(c);
+      });
+    }
+    sideCones(-1);
+    sideCones(1);
+    const nose = new THREE.Mesh(
+      new THREE.BoxGeometry(0.22, 0.12, 0.28),
+      accent
+    );
+    nose.position.set(0.42, 0.02, 0);
+    g.add(nose);
+  } else if (kind === 'shooter') {
+    const hull = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.26, 0.5), mat);
+    g.add(hull);
+    const dome = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22, 10, 8),
+      new THREE.MeshStandardMaterial({ color: 0x9fd4ff, emissive: 0x224466, roughness: 0.2 })
+    );
+    dome.position.set(0.05, 0.22, 0);
+    g.add(dome);
     const gun = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.12, 0.12),
-      new THREE.MeshStandardMaterial({ color: 0x9fd4ff, emissive: 0x224466 })
+      new THREE.CylinderGeometry(0.07, 0.1, 0.55, 8),
+      new THREE.MeshStandardMaterial({ color: 0xcfefff, emissive: 0x335577 })
     );
-    gun.position.set(0.48, 0.05, 0);
+    gun.rotation.z = Math.PI / 2;
+    gun.position.set(0.55, 0.04, 0);
     g.add(gun);
-  }
-  if (kind === 'whip') {
-    const spike = new THREE.Mesh(
-      enemyGeo.spike,
-      new THREE.MeshStandardMaterial({ color: 0xfff1a8, emissive: 0xaa7700 })
-    );
-    spike.rotation.z = -Math.PI / 2;
-    spike.position.set(0.55, 0.05, 0);
-    g.add(spike);
-  }
-  if (kind === 'boss') {
+    [-1, 1].forEach(function(sign) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.06, 0.28), accent);
+      fin.position.set(-0.15, 0.02, sign * 0.42);
+      fin.rotation.y = sign * 0.25;
+      g.add(fin);
+    });
+  } else if (kind === 'whip') {
+    const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.38, 0), mat);
+    core.scale.set(1.15, 0.7, 0.85);
+    g.add(core);
+    const spikeMat = new THREE.MeshStandardMaterial({ color: 0xfff1a8, emissive: 0xaa7700 });
+    const forward = new THREE.Mesh(enemyGeo.spike, spikeMat);
+    forward.rotation.z = -Math.PI / 2;
+    forward.position.set(0.55, 0.05, 0);
+    g.add(forward);
+    [-1, 1].forEach(function(sign) {
+      const blade = new THREE.Mesh(
+        new THREE.ConeGeometry(0.1, 0.7, 5),
+        spikeMat
+      );
+      blade.rotation.x = sign * Math.PI / 2;
+      blade.position.set(0.05, 0.05, sign * 0.48);
+      g.add(blade);
+    });
+  } else if (kind === 'boss') {
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 0.45, 4, 10), mat);
+    body.rotation.z = Math.PI / 2;
+    body.scale.set(1.15, 1.1, 1.1);
+    g.add(body);
     const hornMat = new THREE.MeshStandardMaterial({ color: 0xff88aa, emissive: 0x661133 });
     const h1 = new THREE.Mesh(enemyGeo.horn, hornMat);
     const h2 = new THREE.Mesh(enemyGeo.horn, hornMat);
@@ -202,7 +269,25 @@ function makeEnemyMesh(kind) {
     h2.rotation.z = -0.4;
     g.add(h1);
     g.add(h2);
+    const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.55), accent);
+    jaw.position.set(0.55, -0.05, 0);
+    g.add(jaw);
+  } else {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.28, 0.45), mat);
+    g.add(body);
   }
+
+  if (kind !== 'rock' && kind !== 'normal') {
+    const eyeMat = new THREE.MeshStandardMaterial({
+      color: kind === 'mid' ? 0xffcc66 : 0xff4466,
+      emissive: kind === 'mid' ? 0xaa5500 : 0x661122
+    });
+    const eye = new THREE.Mesh(enemyGeo.eye, eyeMat);
+    eye.position.set(kind === 'boss' ? 0.42 : 0.28, kind === 'mid' ? 0.35 : 0.14, 0);
+    eye.scale.setScalar(kind === 'boss' ? 1.6 : (kind === 'mid' ? 1.3 : 1));
+    g.add(eye);
+  }
+
   const tell = new THREE.Mesh(
     new THREE.TorusGeometry(0.7, 0.06, 8, 24),
     new THREE.MeshBasicMaterial({ color: 0x7af7ff, transparent: true, opacity: 0.85 })
