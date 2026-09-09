@@ -2,8 +2,9 @@
 import * as THREE from 'three';
 
 const SCALE = 16;
-const VIEW = 20;
+const OBJ = 2;
 const ARENA = 600;
+const ARENA_HALF = 300 / SCALE;
 
 function wx(x) { return (x - 300) / SCALE; }
 function wz(y) { return (y - 300) / SCALE; }
@@ -17,8 +18,9 @@ renderer.setClearColor(0x050518);
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x050518, 30, 62);
 
-const camera = new THREE.OrthographicCamera(-VIEW, VIEW, VIEW, -VIEW, 0.1, 140);
-camera.position.set(0, 26, 14);
+const camera = new THREE.OrthographicCamera(-ARENA_HALF, ARENA_HALF, ARENA_HALF, -ARENA_HALF, 0.1, 160);
+camera.up.set(0, 0, -1);
+camera.position.set(0, 48, 0);
 camera.lookAt(0, 0, 0);
 
 scene.add(new THREE.AmbientLight(0x6a7aaa, 0.55));
@@ -287,8 +289,8 @@ function syncEnemies() {
       pools.enemies.set(e, mesh);
     }
     const s = enemyScaleVisual(e);
-    mesh.scale.setScalar(s);
-    place(mesh, e.x, e.y, 0.4 * s);
+    mesh.scale.setScalar(s * OBJ);
+    place(mesh, e.x, e.y, 0.4 * s * OBJ);
     const dx = (window.player ? window.player.x : e.x) - e.x;
     const dz = (window.player ? window.player.y : e.y) - e.y;
     mesh.rotation.y = -Math.atan2(dz, dx);
@@ -311,7 +313,7 @@ function syncEnemies() {
     const whipping = (e.kind === 'whip' || e.kind === 'boss') && (e.whip || 0) > 0 && window.player;
     mesh.userData.whipLine.visible = !!whipping;
     if (whipping) {
-      const reach = (e.kind === 'boss' ? 78 : 58) / SCALE / s;
+      const reach = (e.kind === 'boss' ? 78 : 58) / SCALE / (s * OBJ);
       const arr = mesh.userData.whipLine.geometry.attributes.position;
       arr.setXYZ(0, 0.2, 0.25, 0);
       arr.setXYZ(1, reach * 0.55, 0.4, 0.55);
@@ -336,8 +338,8 @@ function syncShots() {
       pools.shots.set(s, mesh);
     }
     const rad = Math.max(0.08, (s.r || 4) / SCALE);
-    mesh.scale.setScalar(rad / 0.12);
-    place(mesh, s.x, s.y, 0.42);
+    mesh.scale.setScalar(rad / 0.12 * OBJ);
+    place(mesh, s.x, s.y, 0.42 * OBJ);
   });
 }
 
@@ -352,8 +354,8 @@ function syncEnemyShots() {
       pools.eShots.set(s, mesh);
     }
     const rad = Math.max(0.1, (s.r || 4) / SCALE);
-    mesh.scale.setScalar(rad / 0.12);
-    place(mesh, s.x, s.y, 0.38);
+    mesh.scale.setScalar(rad / 0.12 * OBJ);
+    place(mesh, s.x, s.y, 0.38 * OBJ);
   });
 }
 
@@ -383,7 +385,8 @@ function syncGems() {
       pools.gems.set(g, mesh);
     }
     const bob = 0.28 + Math.sin(t * 4 + g.x * 0.02) * 0.08;
-    place(mesh, g.x, g.y, bob);
+    mesh.scale.setScalar(OBJ);
+    place(mesh, g.x, g.y, bob * OBJ);
     mesh.rotation.y = t * 1.6;
   });
 }
@@ -399,7 +402,8 @@ function syncOrbs() {
       scene.add(mesh);
       pools.orbs.set(o, mesh);
     }
-    place(mesh, o.x, o.y, 0.45);
+    mesh.scale.setScalar(OBJ);
+    place(mesh, o.x, o.y, 0.45 * OBJ);
   });
 }
 
@@ -427,8 +431,8 @@ function syncParticles() {
       pools.parts.set(p, mesh);
     }
     const s = Math.max(0.08, (p.s || 3) / SCALE);
-    mesh.scale.setScalar(s / 0.12);
-    place(mesh, p.x, p.y, 0.35);
+    mesh.scale.setScalar(s / 0.12 * OBJ);
+    place(mesh, p.x, p.y, 0.35 * OBJ);
     mesh.material.opacity = Math.max(0, Math.min(1, (p.life || 0) * 2));
     mesh.material.color.setHex(colorOf(p.c));
   });
@@ -445,8 +449,8 @@ function syncFlashes() {
       pools.flashes.set(f, mesh);
     }
     const rad = Math.max(0.2, (f.r || 12) / SCALE);
-    mesh.scale.setScalar(rad / 0.4);
-    place(mesh, f.x, f.y, 0.4);
+    mesh.scale.setScalar(rad / 0.4 * OBJ);
+    place(mesh, f.x, f.y, 0.4 * OBJ);
     mesh.material.opacity = Math.max(0, (f.life || 0) * 4);
     mesh.material.color.setHex(colorOf(f.color));
   });
@@ -484,8 +488,8 @@ function syncExhaust() {
       pools.exhaust.set(p, mesh);
     }
     const k = Math.max(0, p.life / (p.max || 0.3));
-    mesh.scale.set(0.5 + k, 0.5 + k, 1.2 + k * 2);
-    place(mesh, p.x, p.y, 0.28);
+    mesh.scale.set((0.5 + k) * OBJ, (0.5 + k) * OBJ, (1.2 + k * 2) * OBJ);
+    place(mesh, p.x, p.y, 0.28 * OBJ);
     mesh.material.opacity = k;
     mesh.material.color.setHex(k > 0.55 ? 0xfff4c4 : (k > 0.28 ? 0xffb347 : 0xff5a1f));
   });
@@ -503,12 +507,11 @@ function applySkin() {
 
 function placeShipIdle() {
   ship.visible = true;
-  ship.scale.set(1, 1, 1);
+  ship.scale.set(OBJ, OBJ, OBJ);
   ship.rotation.set(0, Math.sin(performance.now() / 900) * 0.2, 0);
-  ship.position.set(0, 0.35, 0);
+  ship.position.set(0, 0.35 * OBJ, 0);
   ship.userData.starRing.visible = false;
-  camera.position.set(0, 26, 14);
-  camera.lookAt(0, 0, 0);
+  lockCamera();
 }
 
 function placeShipPlay() {
@@ -528,13 +531,12 @@ function placeShipPlay() {
   if ((window.player.hitFlash || 0) > 0) ship.userData.glass.material.color.setHex(0xff4466);
   else if ((window.player.healFlash || 0) > 0) ship.userData.glass.material.color.setHex(0x50ffa0);
   else applySkin();
-  ship.scale.set(1, 1, 1);
+  ship.scale.set(OBJ, OBJ, OBJ);
   ship.rotation.z = 0;
   ship.rotation.x = 0;
   ship.rotation.y = -(window.player.ang || 0);
-  ship.position.set(wx(window.player.x), 0.35, wz(window.player.y));
-  camera.position.set(wx(window.player.x), 26, wz(window.player.y) + 14);
-  camera.lookAt(wx(window.player.x), 0, wz(window.player.y));
+  ship.position.set(wx(window.player.x), 0.35 * OBJ, wz(window.player.y));
+  lockCamera();
 }
 
 const SHIP_LEN = 2.1;
@@ -542,10 +544,10 @@ const SHIP_LEN = 2.1;
 function tickRoll(dt) {
   roll.t += dt;
   const u = Math.min(1, roll.t / roll.dur);
-  const start = new THREE.Vector3(wx(roll.x), 0.35, wz(roll.y));
-  const toward = new THREE.Vector3(0, 26, 14).normalize();
-  const perp = new THREE.Vector3(0, -toward.z, toward.y).normalize();
-  const radius = SHIP_LEN * 5;
+  const start = new THREE.Vector3(wx(roll.x), 0.35 * OBJ, wz(roll.y));
+  const toward = new THREE.Vector3(0, 1, 0);
+  const perp = new THREE.Vector3(0, 0, 1);
+  const radius = SHIP_LEN * OBJ * 5;
   const center = start.clone().addScaledVector(toward, radius);
   const theta = u * Math.PI * 2;
   const pos = center.clone()
@@ -556,23 +558,21 @@ function tickRoll(dt) {
     .normalize();
   ship.visible = true;
   ship.position.copy(pos);
-  ship.scale.set(1, 1, 1);
+  ship.scale.set(OBJ, OBJ, OBJ);
   const nose = pos.clone().add(tangent);
   ship.lookAt(nose);
   ship.rotateZ(theta);
-  const look = start.clone();
-  camera.position.set(look.x, 26, look.z + 14);
-  camera.lookAt(look);
+  lockCamera();
   if (!roll.dropped && u >= 0.5) {
     roll.dropped = true;
     if (typeof window.boom === 'function') window.boom(roll.x, roll.y);
   }
   if (u >= 1) {
     roll = null;
-    ship.scale.set(1, 1, 1);
+    ship.scale.set(OBJ, OBJ, OBJ);
     ship.rotation.set(0, 0, 0);
     if (window.player) {
-      ship.position.set(wx(window.player.x), 0.35, wz(window.player.y));
+      ship.position.set(wx(window.player.x), 0.35 * OBJ, wz(window.player.y));
       ship.rotation.y = -(window.player.ang || 0);
     }
   }
@@ -614,13 +614,14 @@ function tickStars3d(dt) {
   }
 }
 
+function lockCamera() {
+  camera.position.set(0, 48, 0);
+  camera.up.set(0, 0, -1);
+  camera.lookAt(0, 0, 0);
+}
+
 function followCameraIfHyper() {
-  if ((window.hyper || 0) <= 0 || roll) return;
-  const x = window.player ? wx(window.player.x) : 0;
-  const z = window.player ? wz(window.player.y) : 0;
-  const pull = Math.min(8, window.hyper * 2.2);
-  camera.position.set(x, 26 + pull, z + 14 + pull * 0.4);
-  camera.lookAt(x, 0, z);
+  lockCamera();
 }
 
 function resize() {
@@ -628,12 +629,12 @@ function resize() {
   if (!parent) return;
   const r = parent.getBoundingClientRect();
   renderer.setSize(r.width, r.height, false);
-  const a = r.width / Math.max(1, r.height);
-  camera.left = -VIEW * a;
-  camera.right = VIEW * a;
-  camera.top = VIEW;
-  camera.bottom = -VIEW;
+  camera.left = -ARENA_HALF;
+  camera.right = ARENA_HALF;
+  camera.top = ARENA_HALF;
+  camera.bottom = -ARENA_HALF;
   camera.updateProjectionMatrix();
+  lockCamera();
 }
 window.addEventListener('resize', resize);
 resize();
@@ -648,7 +649,7 @@ window.bombRollActive = function() { return !!roll; };
 
 window.resetBombRoll = function() {
   roll = null;
-  ship.scale.set(1, 1, 1);
+  ship.scale.set(OBJ, OBJ, OBJ);
   ship.rotation.set(0, 0, 0);
 };
 
