@@ -1,25 +1,87 @@
-// ==================== INPUT: TECLADO + ANALOG STICK ====================
+// ==================== INPUT: TECLADO + ANALOG STICK + DUALSENSE ====================
 
 function held(code) { return !!keys[code]; }
 
 var padMove = { x:0, y:0 };
 var padPrev = {};
+var padIndex = -1;
+var padName = '';
+
+function isDualSenseLike(gp) {
+  if (!gp || !gp.id) return false;
+  const id = String(gp.id).toLowerCase();
+  return id.indexOf('dualsense') >= 0
+    || id.indexOf('dualshock') >= 0
+    || id.indexOf('wireless controller') >= 0
+    || id.indexOf('sony') >= 0
+    || id.indexOf('054c') >= 0
+    || id.indexOf('ps5') >= 0
+    || id.indexOf('ps4') >= 0;
+}
+
+function pickGamepad() {
+  if (!navigator.getGamepads) return null;
+  const list = navigator.getGamepads();
+  if (!list) return null;
+  if (padIndex >= 0 && list[padIndex]) return list[padIndex];
+  let fallback = null;
+  for (let i = 0; i < list.length; i++) {
+    const gp = list[i];
+    if (!gp) continue;
+    if (isDualSenseLike(gp)) { padIndex = i; padName = gp.id; return gp; }
+    if (!fallback) { fallback = gp; padIndex = i; padName = gp.id; }
+  }
+  return fallback;
+}
+
+function setPadStatus(on, label) {
+  const el = document.getElementById('padStatus');
+  if (!el) return;
+  if (!on) {
+    el.classList.add('hidden');
+    el.textContent = '';
+    return;
+  }
+  el.classList.remove('hidden');
+  el.textContent = label || 'PAD';
+}
+
+function onPadConnected(ev) {
+  const gp = ev.gamepad;
+  padIndex = gp.index;
+  padName = gp.id || 'Gamepad';
+  setPadStatus(true, isDualSenseLike(gp) ? 'DUALSENSE' : 'PAD');
+  if (typeof banner === 'function' && (screen === 'menu' || screen === 'play')) {
+    banner(isDualSenseLike(gp) ? 'DUALSENSE' : 'MANDO');
+  }
+}
+
+function onPadDisconnected(ev) {
+  if (padIndex === ev.gamepad.index) {
+    padIndex = -1;
+    padName = '';
+    padMove = { x:0, y:0 };
+    padPrev = {};
+    setPadStatus(false);
+  }
+}
 
 function pollGamepad() {
   padMove = { x:0, y:0 };
-  if (!navigator.getGamepads) return;
-  const list = navigator.getGamepads();
-  let gp = null;
-  for (let i = 0; i < list.length; i++) {
-    if (list[i]) { gp = list[i]; break; }
+  const gp = pickGamepad();
+  if (!gp) {
+    setPadStatus(false);
+    return;
   }
-  if (!gp) return;
+  setPadStatus(true, isDualSenseLike(gp) ? 'DUALSENSE' : 'PAD');
   const pressed = function(i) {
     return !!(gp.buttons[i] && (gp.buttons[i].pressed || gp.buttons[i].value > 0.5));
   };
+  // Standard mapping: axes 0/1 left stick. Some Android builds leave dead axes at 0.
   let x = gp.axes[0] || 0;
   let y = gp.axes[1] || 0;
-  if (Math.hypot(x, y) < 0.22) { x = 0; y = 0; }
+  if (Math.hypot(x, y) < 0.18) { x = 0; y = 0; }
+  // D-pad
   if (pressed(14)) x -= 1;
   if (pressed(15)) x += 1;
   if (pressed(12)) y -= 1;
@@ -32,20 +94,32 @@ function pollGamepad() {
     padPrev[id] = on;
     return on && !was;
   }
+  // Face: 0 Cross, 1 Circle, 2 Square, 3 Triangle. Shoulders: 4 L1, 5 R1.
+  if (screen === 'menu') {
+    if (edge('start', pressed(0) || pressed(9))) {
+      if (typeof startRun === 'function') startRun();
+    }
+    return;
+  }
+  if (screen === 'over') {
+    if (edge('retry', pressed(0) || pressed(9))) {
+      if (typeof startRun === 'function') startRun();
+    }
+    return;
+  }
   if (screen === 'stage') {
-    if (edge('stageOk', pressed(0))) exitStageToMenu();
+    if (edge('stageOk', pressed(0) || pressed(9))) exitStageToMenu();
     return;
   }
   if (screen === 'level') {
     if (edge('lvUp', pressed(12) || pressed(14))) moveLevelPick(-1);
     if (edge('lvDown', pressed(13) || pressed(15))) moveLevelPick(1);
-    if (edge('lvOk', pressed(0))) confirmLevelPick();
+    if (edge('lvOk', pressed(0) || pressed(9))) confirmLevelPick();
     return;
   }
   if (screen === 'play') {
-    // Cross / Square / L1 heal. Circle / R1 bomb. Standard map covers DualSense.
-    if (edge('heal', pressed(0) || pressed(2) || pressed(4))) useHeal();
-    if (edge('bomb', pressed(1) || pressed(5))) useBomb();
+    if (edge('heal', pressed(0) || pressed(2) || pressed(4) || pressed(6))) useHeal();
+    if (edge('bomb', pressed(1) || pressed(5) || pressed(7))) useBomb();
   }
 }
 
@@ -62,6 +136,12 @@ function moveVector() {
 }
 
 function bindInput() {
+  window.addEventListener('gamepadconnected', onPadConnected);
+  window.addEventListener('gamepaddisconnected', onPadDisconnected);
+  // Wake any already-connected pad (PC). Android usually needs a button press first.
+  const existing = pickGamepad();
+  if (existing) setPadStatus(true, isDualSenseLike(existing) ? 'DUALSENSE' : 'PAD');
+
   const stickEl = document.getElementById('stick');
   const knob = document.getElementById('knob');
   function setKnob(px, py) {

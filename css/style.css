@@ -6,6 +6,7 @@
   #hud { display:flex; justify-content:space-between; gap:6px; }
   .card { background:rgba(10,15,35,.85); border:1px solid rgba(0,255,255,.4); border-radius:8px; padding:6px 10px; font-size:.82rem; font-weight:700; white-space:nowrap; }
   .cyan { color:#00ffff; } .mag { color:#ff00ff; } .hp { color:#ff6688; }
+  #padStatus { color:#7af7ff; border-color:rgba(122,247,255,.5); }
   #bossHud { display:flex; align-items:center; gap:8px; }
   #bossHud.hidden { display:none !important; }
   .boss-label { color:#ff6688; font-weight:800; font-size:.78rem; letter-spacing:1px; }
