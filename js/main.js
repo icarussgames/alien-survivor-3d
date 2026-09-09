@@ -104,6 +104,9 @@ const shots = [];
 const trails = [];
 let playing = false;
 let hp = 100;
+let bombs = 2;
+let roll = null;
+const rings = [];
 let shootT = 0;
 let spawnT = 0;
 let px = 0, pz = 0, ang = 0;
@@ -133,11 +136,18 @@ function resetRun() {
   enemies.forEach(function(e){ scene.remove(e); });
   shots.forEach(function(s){ scene.remove(s.mesh); });
   trails.forEach(function(t){ scene.remove(t.mesh); });
+  rings.forEach(function(r){ scene.remove(r.mesh); });
   enemies.length = 0;
   shots.length = 0;
   trails.length = 0;
+  rings.length = 0;
   px = 0; pz = 0; ang = 0;
   hp = 100;
+  bombs = 2;
+  roll = null;
+  ship.scale.set(1, 1, 1);
+  ship.rotation.set(0, 0, 0);
+  document.getElementById('bombN').textContent = bombs;
   shootT = 0.2;
   spawnT = 0.4;
   ship.position.set(0, 0.35, 0);
@@ -201,7 +211,81 @@ function nearest() {
   return best;
 }
 
+function refreshBomb() {
+  const el = document.getElementById('bombN');
+  if (el) el.textContent = bombs;
+}
+
+function useBomb() {
+  if (!playing || bombs <= 0 || roll) return;
+  bombs -= 1;
+  refreshBomb();
+  roll = { t:0, dur:1.15, dropped:false, x:px, z:pz, yaw:ang };
+}
+
+function dropBomb(x, z) {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.4, 0.08, 8, 28),
+    new THREE.MeshBasicMaterial({ color:0xff8844, transparent:true, opacity:0.9 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.set(x, 0.2, z);
+  scene.add(ring);
+  rings.push({ mesh:ring, life:0.45, max:0.45 });
+  const reach = 8;
+  enemies.slice().forEach(function(e){
+    if (Math.hypot(e.position.x - x, e.position.z - z) < reach) {
+      scene.remove(e);
+      enemies.splice(enemies.indexOf(e), 1);
+    }
+  });
+}
+
+function tickRoll(dt) {
+  roll.t += dt;
+  const u = Math.min(1, roll.t / roll.dur);
+  const lift = Math.sin(u * Math.PI);
+  ship.position.set(roll.x, 0.35 + lift * 4.4, roll.z + lift * 2.4);
+  ship.rotation.y = -roll.yaw;
+  ship.rotation.z = u * Math.PI * 2;
+  ship.rotation.x = -lift * 0.7;
+  const s = 1 + lift * 0.55;
+  ship.scale.set(s, s, s);
+  camera.position.set(roll.x, 22 - lift * 4, roll.z + 14 - lift * 3);
+  camera.lookAt(roll.x, 1.2, roll.z);
+  if (!roll.dropped && u >= 0.42) {
+    roll.dropped = true;
+    dropBomb(roll.x, roll.z);
+  }
+  if (u >= 1) {
+    px = roll.x;
+    pz = roll.z;
+    ang = roll.yaw;
+    roll = null;
+    ship.scale.set(1, 1, 1);
+    ship.rotation.z = 0;
+    ship.rotation.x = 0;
+    ship.position.set(px, 0.35, pz);
+  }
+}
+
+function tickRings(dt) {
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i];
+    r.life -= dt;
+    const k = 1 - Math.max(0, r.life / r.max);
+    const s = 1 + k * 18;
+    r.mesh.scale.set(s, s, s);
+    r.mesh.material.opacity = Math.max(0, 1 - k);
+    if (r.life <= 0) {
+      scene.remove(r.mesh);
+      rings.splice(i, 1);
+    }
+  }
+}
+
 function hurt(n) {
+  if (roll) return;
   hp -= n;
   document.getElementById('hp').textContent = Math.max(0, hp);
   if (hp <= 0) {
@@ -211,6 +295,11 @@ function hurt(n) {
 }
 
 function tick(dt) {
+  tickRings(dt);
+  if (roll) {
+    tickRoll(dt);
+    return;
+  }
   const mv = moveVector();
   const len = Math.hypot(mv.x, mv.z);
   if (len > 0.08) {
@@ -295,6 +384,11 @@ requestAnimationFrame(loop);
 
 document.getElementById('startBtn').onclick = resetRun;
 document.getElementById('retryBtn').onclick = resetRun;
+document.getElementById('useBomb').onclick = useBomb;
+window.addEventListener('keydown', function(ev){
+  if (ev.repeat) return;
+  if (ev.code === 'KeyE' || ev.code === 'Space') useBomb();
+});
 
 window.addEventListener('keydown', function(ev){ keys[ev.code] = true; });
 window.addEventListener('keyup', function(ev){ keys[ev.code] = false; });
