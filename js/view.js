@@ -549,7 +549,7 @@ function tickRoll(dt) {
   const start = new THREE.Vector3(wx(roll.x), 0.35 * OBJ, wz(roll.y));
   const toward = new THREE.Vector3(0, 1, 0);
   const perp = new THREE.Vector3(0, 0, 1);
-  const radius = SHIP_LEN * OBJ * 5;
+  const radius = SHIP_LEN * OBJ * 3;
   const center = start.clone().addScaledVector(toward, radius);
   const theta = u * Math.PI * 2;
   const pos = center.clone()
