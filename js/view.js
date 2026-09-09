@@ -537,30 +537,40 @@ function placeShipPlay() {
   camera.lookAt(wx(window.player.x), 0, wz(window.player.y));
 }
 
+const SHIP_LEN = 2.1;
+
 function tickRoll(dt) {
   roll.t += dt;
   const u = Math.min(1, roll.t / roll.dur);
-  const lift = Math.sin(u * Math.PI);
-  const x = wx(roll.x);
-  const z = wz(roll.y);
+  const start = new THREE.Vector3(wx(roll.x), 0.35, wz(roll.y));
+  const toward = new THREE.Vector3(0, 26, 14).normalize();
+  const perp = new THREE.Vector3(0, -toward.z, toward.y).normalize();
+  const radius = SHIP_LEN * 5;
+  const center = start.clone().addScaledVector(toward, radius);
+  const theta = u * Math.PI * 2;
+  const pos = center.clone()
+    .addScaledVector(toward, -Math.cos(theta) * radius)
+    .addScaledVector(perp, Math.sin(theta) * radius);
+  const tangent = toward.clone().multiplyScalar(Math.sin(theta))
+    .addScaledVector(perp, Math.cos(theta))
+    .normalize();
   ship.visible = true;
-  ship.position.set(x, 0.35 + lift * 4.4, z + lift * 2.4);
-  ship.rotation.y = -roll.yaw;
-  ship.rotation.z = u * Math.PI * 2;
-  ship.rotation.x = -lift * 0.7;
-  const s = 1 + lift * 0.55;
-  ship.scale.set(s, s, s);
-  camera.position.set(x, 22 - lift * 4, z + 14 - lift * 3);
-  camera.lookAt(x, 1.2, z);
-  if (!roll.dropped && u >= 0.42) {
+  ship.position.copy(pos);
+  ship.scale.set(1, 1, 1);
+  const nose = pos.clone().add(tangent);
+  ship.lookAt(nose);
+  ship.rotateZ(theta);
+  const look = start.clone();
+  camera.position.set(look.x, 26, look.z + 14);
+  camera.lookAt(look);
+  if (!roll.dropped && u >= 0.5) {
     roll.dropped = true;
     if (typeof window.boom === 'function') window.boom(roll.x, roll.y);
   }
   if (u >= 1) {
     roll = null;
     ship.scale.set(1, 1, 1);
-    ship.rotation.z = 0;
-    ship.rotation.x = 0;
+    ship.rotation.set(0, 0, 0);
     if (window.player) {
       ship.position.set(wx(window.player.x), 0.35, wz(window.player.y));
       ship.rotation.y = -(window.player.ang || 0);
@@ -630,7 +640,7 @@ resize();
 
 window.requestBombRoll = function() {
   if (roll || !window.player || window.asScreen !== 'play') return false;
-  roll = { t: 0, dur: 1.15, dropped: false, x: window.player.x, y: window.player.y, yaw: window.player.ang || 0 };
+  roll = { t: 0, dur: 1.7, dropped: false, x: window.player.x, y: window.player.y, yaw: window.player.ang || 0 };
   return true;
 };
 
