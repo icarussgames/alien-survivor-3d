@@ -3,6 +3,8 @@ import * as THREE from 'three';
 
 const SCALE = 16;
 const OBJ = 2;
+const SHIP = OBJ * 0.6;
+const SHOT = OBJ * 0.6;
 const ARENA = 600;
 const ARENA_HALF = 300 / SCALE;
 
@@ -13,18 +15,18 @@ function liftY(h) { return h; }
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-renderer.setClearColor(0x050518);
+renderer.setClearColor(0x12182e);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x050518, 30, 62);
+scene.fog = new THREE.Fog(0x12182e, 90, 140);
 
 const camera = new THREE.OrthographicCamera(-ARENA_HALF, ARENA_HALF, ARENA_HALF, -ARENA_HALF, 0.1, 160);
 camera.up.set(0, 0, -1);
 camera.position.set(0, 48, 0);
 camera.lookAt(0, 0, 0);
 
-scene.add(new THREE.AmbientLight(0x6a7aaa, 0.55));
-const key = new THREE.DirectionalLight(0xd8f6ff, 1.15);
+scene.add(new THREE.AmbientLight(0xc5d4ee, 1.35));
+const key = new THREE.DirectionalLight(0xffffff, 1.7);
 key.position.set(8, 22, 10);
 scene.add(key);
 const rim = new THREE.DirectionalLight(0xff44aa, 0.35);
@@ -33,12 +35,12 @@ scene.add(rim);
 
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(52, 52),
-  new THREE.MeshStandardMaterial({ color: 0x070714, metalness: 0.2, roughness: 0.9 })
+  new THREE.MeshStandardMaterial({ color: 0x1a2444, metalness: 0.15, roughness: 0.85 })
 );
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(40, 30, 0x123044, 0x0c1828);
+const grid = new THREE.GridHelper(40, 30, 0x3a6a88, 0x243858);
 grid.position.y = 0.02;
 scene.add(grid);
 
@@ -338,8 +340,8 @@ function syncShots() {
       pools.shots.set(s, mesh);
     }
     const rad = Math.max(0.08, (s.r || 4) / SCALE);
-    mesh.scale.setScalar(rad / 0.12 * OBJ);
-    place(mesh, s.x, s.y, 0.42 * OBJ);
+    mesh.scale.setScalar(rad / 0.12 * SHOT);
+    place(mesh, s.x, s.y, 0.42 * SHIP);
   });
 }
 
@@ -507,7 +509,7 @@ function applySkin() {
 
 function placeShipIdle() {
   ship.visible = true;
-  ship.scale.set(OBJ, OBJ, OBJ);
+  ship.scale.set(SHIP, SHIP, SHIP);
   ship.rotation.set(0, Math.sin(performance.now() / 900) * 0.2, 0);
   ship.position.set(0, 0.35 * OBJ, 0);
   ship.userData.starRing.visible = false;
@@ -531,7 +533,7 @@ function placeShipPlay() {
   if ((window.player.hitFlash || 0) > 0) ship.userData.glass.material.color.setHex(0xff4466);
   else if ((window.player.healFlash || 0) > 0) ship.userData.glass.material.color.setHex(0x50ffa0);
   else applySkin();
-  ship.scale.set(OBJ, OBJ, OBJ);
+  ship.scale.set(SHIP, SHIP, SHIP);
   ship.rotation.z = 0;
   ship.rotation.x = 0;
   ship.rotation.y = -(window.player.ang || 0);
@@ -558,7 +560,7 @@ function tickRoll(dt) {
     .normalize();
   ship.visible = true;
   ship.position.copy(pos);
-  ship.scale.set(OBJ, OBJ, OBJ);
+  ship.scale.set(SHIP, SHIP, SHIP);
   const nose = pos.clone().add(tangent);
   ship.lookAt(nose);
   ship.rotateZ(theta);
@@ -569,7 +571,7 @@ function tickRoll(dt) {
   }
   if (u >= 1) {
     roll = null;
-    ship.scale.set(OBJ, OBJ, OBJ);
+    ship.scale.set(SHIP, SHIP, SHIP);
     ship.rotation.set(0, 0, 0);
     if (window.player) {
       ship.position.set(wx(window.player.x), 0.35 * OBJ, wz(window.player.y));
@@ -649,7 +651,7 @@ window.bombRollActive = function() { return !!roll; };
 
 window.resetBombRoll = function() {
   roll = null;
-  ship.scale.set(OBJ, OBJ, OBJ);
+  ship.scale.set(SHIP, SHIP, SHIP);
   ship.rotation.set(0, 0, 0);
 };
 
