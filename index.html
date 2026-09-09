@@ -12,21 +12,106 @@
 <body>
 <div id="wrap">
   <canvas id="c"></canvas>
-  <div id="hud" class="hidden">HP <span id="hp">100</span></div>
+  <div id="hud" class="hidden">
+    <div class="card"><span id="time" class="cyan">0:00</span></div>
+    <div class="card">HP <span id="hp" class="hp">150</span></div>
+    <div class="card">💎 <span id="runGems" class="mag">0</span> · <span id="lifeGems" class="mag">0</span></div>
+  </div>
+  <div id="banner" class="hidden"></div>
+  <div id="bar" class="hidden"><i id="xp"></i></div>
+
   <div id="menu" class="overlay">
     <h1>Alien Survivor 3D</h1>
-    <p>Prueba de cámara cenital. El movimiento sigue siendo plano. Las naves son mallas 3D.</p>
+    <p>El disparo es automático. En el celular usa el stick. Las curas y bombas se guardan y se usan después. Un jefe cada 3 minutos.</p>
     <button class="btn" id="startBtn" type="button">EMPEZAR</button>
+    <button class="btn ghost" id="fullBtn" type="button">PANTALLA COMPLETA</button>
+    <div>
+      <button class="btn ghost" id="shopBtn" type="button">MEJORAS</button>
+      <button class="btn ghost" id="galBtn" type="button">GALERÍA</button>
+    </div>
+    <div>
+      <button class="btn ghost" id="packBtn" type="button">CARGAR PACK.ZIP</button>
+      <a class="btn ghost" href="pack.zip" download="pack.zip">PACK DE MUESTRA</a>
+    </div>
+    <div class="tips">WASD o flechas. Q cura, E bomba. El techo de daño y cadencia sube cada 3 minutos.</div>
   </div>
+
   <div id="over" class="overlay hidden">
     <h1 class="bad">Caíste</h1>
+    <p>Tiempo: <b id="fTime" class="cyan">0:00</b><br>Gemas de la partida: <span id="fRun" class="mag">0</span><br>Gemas totales: <span id="fLife" class="mag">0</span></p>
     <button class="btn" id="retryBtn" type="button">REINTENTAR</button>
+    <div>
+      <button class="btn ghost" id="shopBtn2" type="button">MEJORAS</button>
+      <button class="btn ghost" id="galBtn2" type="button">GALERÍA</button>
+    </div>
   </div>
+
+  <div id="stage" class="overlay hidden">
+    <h1>Etapa 1</h1>
+    <p>El jefe cayó. Las gemas ya están guardadas. Vuelve al menú para comprar mejoras y fotos.</p>
+    <p>Gemas: <span id="stageGems" class="mag">0</span></p>
+    <button class="btn" id="stageMenu" type="button">AL MENÚ</button>
+  </div>
+
+  <div id="level" class="overlay hidden">
+    <h1>Nivel</h1>
+    <p>Elige una stat para esta partida.</p>
+    <div id="picks"></div>
+  </div>
+
+  <div id="shop" class="overlay hidden">
+    <h1>Mejoras</h1>
+    <p>Gemas: <span id="shopGems" class="mag">0</span></p>
+    <div class="scroll" id="shopList"></div>
+    <button class="btn ghost" id="shopBack" type="button">VOLVER</button>
+    <button class="btn ghost" id="wipe" type="button" style="font-size:.8rem;padding:6px 14px">Borrar progreso</button>
+  </div>
+
+  <div id="gal" class="overlay hidden">
+    <h1>Galería</h1>
+    <p id="galHint">Gemas: 0</p>
+    <div class="gal-tabs" id="galTabs"></div>
+    <div class="gal-shop" id="galShop"></div>
+    <div>
+      <button class="btn ghost" id="packBtn2" type="button">CARGAR PACK.ZIP</button>
+      <a class="btn ghost" href="pack.zip" download="pack.zip">PACK DE MUESTRA</a>
+      <button class="btn ghost" id="packClear" type="button">QUITAR PACK</button>
+    </div>
+    <button class="btn ghost" id="galBack" type="button">VOLVER</button>
+    <input type="file" id="packFile" accept=".zip,application/zip" hidden>
+  </div>
+  <div id="lib" class="overlay hidden">
+    <h1>Sets</h1>
+    <p>Gemas: <span id="libGems" class="mag">0</span></p>
+    <div class="lib-grid" id="libGrid"></div>
+    <button class="btn ghost" id="libBack" type="button">VOLVER</button>
+  </div>
+  <div id="fs" class="hidden"><img id="fsImg" alt=""></div>
 </div>
+<button id="fsBtn" type="button" aria-label="Pantalla completa">⛶</button>
 <div id="pad" class="hidden">
   <div id="stick"><div id="knob"></div></div>
-  <button id="useBomb" type="button">💣 <span id="bombN">2</span></button>
+  <div class="side">
+    <div class="items">
+      <button id="useHeal" type="button">❤ <span id="healN">0</span></button>
+      <button id="useBomb" type="button">💣 <span id="bombN">0</span></button>
+      <label class="auto" id="autoItem"><input type="checkbox" id="autoCheck"> Auto</label>
+    </div>
+    <div id="stats">SPD 0  DEF 0  ATK 0  MAG 0</div>
+  </div>
 </div>
-<script type="module" src="js/main.js"></script>
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/player.js"></script>
+<script src="js/items.js"></script>
+<script src="js/waves.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/input.js"></script>
+<script src="js/main.js"></script>
+<script type="module" src="js/view.js"></script>
 </body>
 </html>
