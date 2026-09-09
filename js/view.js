@@ -203,18 +203,6 @@ function makeEnemyMesh(kind) {
     g.add(h1);
     g.add(h2);
   }
-  const barBg = new THREE.Mesh(
-    new THREE.BoxGeometry(1.15, 0.08, 0.1),
-    new THREE.MeshBasicMaterial({ color: 0x120814 })
-  );
-  barBg.position.set(0, 0.12, 0.95);
-  const barFill = new THREE.Mesh(
-    new THREE.BoxGeometry(1.15, 0.09, 0.12),
-    new THREE.MeshBasicMaterial({ color: 0xff3366 })
-  );
-  barFill.position.set(0, 0.12, 0.95);
-  g.add(barBg);
-  g.add(barFill);
   const tell = new THREE.Mesh(
     new THREE.TorusGeometry(0.7, 0.06, 8, 24),
     new THREE.MeshBasicMaterial({ color: 0x7af7ff, transparent: true, opacity: 0.85 })
@@ -231,8 +219,6 @@ function makeEnemyMesh(kind) {
   g.add(whipLine);
   g.userData.kind = kind;
   g.userData.mat = mat;
-  g.userData.barFill = barFill;
-  g.userData.barBg = barBg;
   g.userData.tell = tell;
   g.userData.whipLine = whipLine;
   return g;
@@ -330,26 +316,13 @@ function syncEnemies() {
     const dz = (window.player ? window.player.y : e.y) - e.y;
     if (e.kind === 'rock') mesh.rotation.y = (e.spin || 1) * (window.aliveTime || 0);
     else mesh.rotation.y = -Math.atan2(dz, dx);
-    mesh.userData.mat.emissiveIntensity = (e.flash || 0) > 0 ? 2.4 : 0.7;
-    let fill = 1;
-    if (e.kind === 'rock') {
-      fill = 1;
-    } else if (e.kind === 'mid') {
-      const fm = e.fuseMax || 15;
-      fill = Math.max(0.04, Math.min(1, (e.fuse == null ? fm : e.fuse) / fm));
-    } else {
-      const bars = Math.max(1, e.bars || 1);
-      const per = e.max / bars;
-      const leftLayers = Math.max(1, Math.ceil(e.hp / per - 1e-6));
-      fill = Math.max(0.04, Math.min(1, (e.hp - (leftLayers - 1) * per) / per));
-    }
-    mesh.userData.barFill.visible = false;
-    mesh.userData.barBg.visible = false;
     if (e.kind === 'mid') {
       const left = e.fuse == null ? 15 : e.fuse;
       const rate = left > 4 ? 2.2 : (left > 1.2 ? 7 : 18);
       const blink = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin((window.aliveTime || 0) * rate * Math.PI * 2));
       mesh.userData.mat.emissiveIntensity = 0.4 + blink * 1.6;
+    } else {
+      mesh.userData.mat.emissiveIntensity = (e.flash || 0) > 0 ? 2.4 : 0.7;
     }
     const telling = (e.tell || 0) > 0;
     mesh.userData.tell.visible = telling;
