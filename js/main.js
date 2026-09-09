@@ -384,7 +384,12 @@ requestAnimationFrame(loop);
 
 document.getElementById('startBtn').onclick = resetRun;
 document.getElementById('retryBtn').onclick = resetRun;
-document.getElementById('useBomb').onclick = useBomb;
+const bombBtn = document.getElementById('useBomb');
+bombBtn.addEventListener('pointerdown', function(ev){
+  ev.preventDefault();
+  ev.stopPropagation();
+  useBomb();
+});
 window.addEventListener('keydown', function(ev){
   if (ev.repeat) return;
   if (ev.code === 'KeyE' || ev.code === 'Space') useBomb();
