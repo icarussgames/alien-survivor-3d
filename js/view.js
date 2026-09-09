@@ -137,16 +137,28 @@ function makeEnemyMesh(kind) {
   if (kind === 'shooter') { color = 0x66aaff; emissive = 0x113355; }
   if (kind === 'whip') { color = 0xffcc33; emissive = 0x553300; }
   if (kind === 'boss') { color = 0xff3355; emissive = 0x440014; }
-  const mat = new THREE.MeshStandardMaterial({ color: color, emissive: emissive, roughness: 0.42 });
-  const body = new THREE.Mesh(kind === 'shooter' ? enemyGeo.box : enemyGeo.body, mat);
-  if (kind !== 'shooter') body.rotation.z = Math.PI / 2;
-  if (kind === 'whip') body.scale.set(1.2, 0.72, 0.7);
+  if (kind === 'mid') { color = 0xff7722; emissive = 0x552200; }
+  if (kind === 'rock') { color = 0x8a8478; emissive = 0x221e18; }
+  const mat = new THREE.MeshStandardMaterial({ color: color, emissive: emissive, roughness: kind === 'rock' ? 0.92 : 0.42 });
+  let body;
+  if (kind === 'rock') {
+    body = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 0), mat);
+  } else if (kind === 'mid') {
+    body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), mat);
+    body.scale.set(1.15, 0.85, 1.15);
+  } else {
+    body = new THREE.Mesh(kind === 'shooter' ? enemyGeo.box : enemyGeo.body, mat);
+    if (kind !== 'shooter') body.rotation.z = Math.PI / 2;
+    if (kind === 'whip') body.scale.set(1.2, 0.72, 0.7);
+  }
   g.add(body);
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff4466, emissive: 0x661122 });
-  const eye = new THREE.Mesh(enemyGeo.eye, eyeMat);
-  eye.position.set(kind === 'boss' ? 0.42 : 0.28, 0.14, 0);
-  eye.scale.setScalar(kind === 'boss' ? 1.6 : 1);
-  g.add(eye);
+  if (kind !== 'rock') {
+    const eyeMat = new THREE.MeshStandardMaterial({ color: kind === 'mid' ? 0xffcc66 : 0xff4466, emissive: kind === 'mid' ? 0xaa5500 : 0x661122 });
+    const eye = new THREE.Mesh(enemyGeo.eye, eyeMat);
+    eye.position.set(kind === 'boss' ? 0.42 : 0.28, kind === 'mid' ? 0.35 : 0.14, 0);
+    eye.scale.setScalar(kind === 'boss' ? 1.6 : (kind === 'mid' ? 1.3 : 1));
+    g.add(eye);
+  }
   if (kind === 'shooter') {
     const gun = new THREE.Mesh(
       new THREE.BoxGeometry(0.42, 0.12, 0.12),
@@ -269,7 +281,10 @@ function place(mesh, x, y, h) {
 
 function enemyScaleVisual(e) {
   const s = Math.max(0.75, (e.r || 13) / 14);
-  return e.kind === 'boss' ? s * 1.15 : s;
+  if (e.kind === 'boss') return s * 1.15;
+  if (e.kind === 'mid') return s * 1.25;
+  if (e.kind === 'rock') return s * 1.1;
+  return s;
 }
 
 function barColor(e) {
@@ -295,7 +310,8 @@ function syncEnemies() {
     place(mesh, e.x, e.y, 0.4 * s * OBJ);
     const dx = (window.player ? window.player.x : e.x) - e.x;
     const dz = (window.player ? window.player.y : e.y) - e.y;
-    mesh.rotation.y = -Math.atan2(dz, dx);
+    if (e.kind === 'rock') mesh.rotation.y = (e.spin || 1) * (window.aliveTime || 0);
+    else mesh.rotation.y = -Math.atan2(dz, dx);
     mesh.userData.mat.emissiveIntensity = (e.flash || 0) > 0 ? 2.4 : 0.7;
     const bars = Math.max(1, e.bars || 1);
     const per = e.max / bars;
@@ -355,8 +371,8 @@ function syncEnemyShots() {
       scene.add(mesh);
       pools.eShots.set(s, mesh);
     }
-    const rad = Math.max(0.1, (s.r || 4) / SCALE);
-    mesh.scale.setScalar(rad / 0.12 * OBJ);
+    const rad = Math.max(s.boss ? 0.12 : 0.05, (s.r || 2) / SCALE);
+    mesh.scale.setScalar(rad / 0.12 * OBJ * (s.boss ? 1 : 0.7));
     place(mesh, s.x, s.y, 0.38 * OBJ);
   });
 }
