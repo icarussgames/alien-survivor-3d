@@ -1,17 +1,18 @@
 // ==================== ITEMS CONSUMIBLES ====================
 // Curas y bombas se guardan y se usan con el panel, no al recogerlas.
 
-const ITEM_MAX = 4;
+function healCap() { return 3 + (owned('capCura')|0); }
+function bombCap() { return 3 + (owned('capBomba')|0); }
 
 function addItem(kind) {
   if (!player) return false;
   if (kind === 'heal') {
-    if (player.heal >= ITEM_MAX) return false;
+    if (player.heal >= healCap()) return false;
     player.heal++;
     return true;
   }
   if (kind === 'bomb') {
-    if (player.bombs >= ITEM_MAX) return false;
+    if (player.bombs >= bombCap()) return false;
     player.bombs++;
     return true;
   }

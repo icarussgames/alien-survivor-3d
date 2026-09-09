@@ -191,12 +191,12 @@ function makeEnemyMesh(kind) {
     new THREE.BoxGeometry(1.15, 0.08, 0.1),
     new THREE.MeshBasicMaterial({ color: 0x120814 })
   );
-  barBg.position.set(0, 0.78, 0);
+  barBg.position.set(0, 0.12, 0.95);
   const barFill = new THREE.Mesh(
     new THREE.BoxGeometry(1.15, 0.09, 0.12),
     new THREE.MeshBasicMaterial({ color: 0xff3366 })
   );
-  barFill.position.set(0, 0.78, 0);
+  barFill.position.set(0, 0.12, 0.95);
   g.add(barBg);
   g.add(barFill);
   const tell = new THREE.Mesh(
@@ -319,6 +319,8 @@ function syncEnemies() {
     const fill = Math.max(0.04, Math.min(1, (e.hp - (leftLayers - 1) * per) / per));
     mesh.userData.barFill.scale.x = fill;
     mesh.userData.barFill.position.x = -1.15 / 2 + (1.15 * fill) / 2;
+    mesh.userData.barFill.position.z = 0.95;
+    mesh.userData.barBg.position.z = 0.95;
     mesh.userData.barFill.material.color.setHex(barColor(e));
     mesh.userData.barBg.visible = bars > 0;
     const telling = (e.tell || 0) > 0;
@@ -372,7 +374,7 @@ function syncEnemyShots() {
       pools.eShots.set(s, mesh);
     }
     const rad = Math.max(s.boss ? 0.12 : 0.05, (s.r || 2) / SCALE);
-    mesh.scale.setScalar(rad / 0.12 * OBJ * (s.boss ? 1 : 0.7));
+    mesh.scale.setScalar(rad / 0.12 * OBJ * (s.boss ? 1 : 0.7) * 1.5);
     place(mesh, s.x, s.y, 0.38 * OBJ);
   });
 }
