@@ -2,10 +2,16 @@
   body { background:#02020a; color:#fff; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
   #wrap { position:relative; width:min(94vw,94vh); height:min(94vw,94vh); max-width:720px; max-height:720px; aspect-ratio:1/1; border:2px solid rgba(0,255,255,.35); border-radius:16px; overflow:hidden; background:#050518; box-shadow:0 0 35px rgba(0,255,255,.2); }
   canvas { width:100%; height:100%; display:block; }
-  #hud { position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; gap:6px; pointer-events:none; z-index:5; }
+  #chrome { width:min(94vw, 720px); display:flex; flex-direction:column; gap:6px; pointer-events:none; }
+  #hud { display:flex; justify-content:space-between; gap:6px; }
   .card { background:rgba(10,15,35,.85); border:1px solid rgba(0,255,255,.4); border-radius:8px; padding:6px 10px; font-size:.82rem; font-weight:700; white-space:nowrap; }
   .cyan { color:#00ffff; } .mag { color:#ff00ff; } .hp { color:#ff6688; }
-  #bar { position:absolute; left:12px; right:12px; bottom:12px; height:8px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; z-index:5; pointer-events:none; }
+  #bossHud { display:flex; align-items:center; gap:8px; }
+  #bossHud.hidden { display:none !important; }
+  .boss-label { color:#ff6688; font-weight:800; font-size:.78rem; letter-spacing:1px; }
+  .boss-track { flex:1; height:10px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; border:1px solid rgba(255,80,120,.35); }
+  .boss-track > i { display:block; height:100%; width:100%; background:linear-gradient(90deg,#ff3366,#ffcc66); }
+  #bar { height:8px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; }
   #bar > i { display:block; height:100%; width:0%; background:linear-gradient(90deg,#39ff14,#00ffff); }
   .overlay { position:absolute; inset:0; background:rgba(3,3,15,.92); display:flex; flex-direction:column; align-items:center; justify-content:flex-start; z-index:20; padding:14px 12px 18px; text-align:center; backdrop-filter:blur(6px); overflow-y:auto; }
   .hidden { display:none !important; }

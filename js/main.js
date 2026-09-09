@@ -4,10 +4,10 @@
 function setScreen(name) {
   screen = name;
   window.asScreen = name;
-  ['menu','over','level','stage','shop','gal','lib','inspect','hud','bar','pad'].forEach(function(n){
+  ['menu','over','level','stage','shop','gal','lib','inspect','chrome','pad'].forEach(function(n){
     const el = document.getElementById(n);
     if (!el) return;
-    const show = n === name || (name === 'play' && (n === 'hud' || n === 'bar' || n === 'pad'));
+    const show = n === name || (name === 'play' && (n === 'chrome' || n === 'pad'));
     el.classList.toggle('hidden', !show);
   });
 }
@@ -32,6 +32,29 @@ function hud() {
   const stats = document.getElementById('stats');
   if (stats) stats.textContent = 'SPD ' + RUN.spd + '  DEF ' + RUN.def + '  ATK ' + RUN.atk + '  MAG ' + RUN.mag;
   document.getElementById('xp').style.width = Math.min(100, (xp / xpNeed) * 100) + '%';
+  const bossHud = document.getElementById('bossHud');
+  const bossFill = document.getElementById('bossHp');
+  let boss = null;
+  if (typeof enemies !== 'undefined') {
+    for (let i = 0; i < enemies.length; i++) {
+      if (enemies[i].kind === 'boss') { boss = enemies[i]; break; }
+    }
+  }
+  if (bossHud && bossFill) {
+    if (boss) {
+      bossHud.classList.remove('hidden');
+      const bars = Math.max(1, boss.bars || 1);
+      const per = boss.max / bars;
+      const leftLayers = Math.max(1, Math.ceil(boss.hp / per - 1e-6));
+      const fill = Math.max(0, Math.min(1, (boss.hp - (leftLayers - 1) * per) / per));
+      bossFill.style.width = (fill * 100) + '%';
+      let color = '#ff3366';
+      if (leftLayers > 1) color = (bars >= 3 && leftLayers === 2) ? '#c084fc' : '#ffcc66';
+      bossFill.style.background = color;
+    } else {
+      bossHud.classList.add('hidden');
+    }
+  }
   refreshItems();
   if (bannerT > 0) bannerT -= 0.016;
   else document.getElementById('banner').classList.add('hidden');

@@ -10,15 +10,21 @@
 </script>
 </head>
 <body>
-<div id="wrap">
-  <canvas id="c"></canvas>
-  <div id="hud" class="hidden">
+<div id="chrome" class="hidden">
+  <div id="hud">
     <div class="card"><span id="time" class="cyan">0:00</span></div>
     <div class="card">HP <span id="hp" class="hp">150</span></div>
     <div class="card">💎 <span id="runGems" class="mag">0</span> · <span id="lifeGems" class="mag">0</span></div>
   </div>
+  <div id="bossHud" class="hidden">
+    <span class="boss-label">JEFE</span>
+    <div class="boss-track"><i id="bossHp"></i></div>
+  </div>
+  <div id="bar"><i id="xp"></i></div>
+</div>
+<div id="wrap">
+  <canvas id="c"></canvas>
   <div id="banner" class="hidden"></div>
-  <div id="bar" class="hidden"><i id="xp"></i></div>
 
   <div id="menu" class="overlay">
     <h1>Alien Survivor 3D</h1>

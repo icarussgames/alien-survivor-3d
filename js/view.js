@@ -343,22 +343,13 @@ function syncEnemies() {
       const leftLayers = Math.max(1, Math.ceil(e.hp / per - 1e-6));
       fill = Math.max(0.04, Math.min(1, (e.hp - (leftLayers - 1) * per) / per));
     }
-    mesh.userData.barFill.scale.x = fill;
-    mesh.userData.barFill.position.x = -1.15 / 2 + (1.15 * fill) / 2;
-    mesh.userData.barFill.position.z = 0.95;
-    mesh.userData.barBg.position.z = 0.95;
-    mesh.userData.barFill.material.color.setHex(barColor(e));
-    mesh.userData.barBg.visible = true;
+    mesh.userData.barFill.visible = false;
+    mesh.userData.barBg.visible = false;
     if (e.kind === 'mid') {
       const left = e.fuse == null ? 15 : e.fuse;
       const rate = left > 4 ? 2.2 : (left > 1.2 ? 7 : 18);
       const blink = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin((window.aliveTime || 0) * rate * Math.PI * 2));
-      mesh.userData.barFill.material.opacity = blink;
-      mesh.userData.barFill.material.transparent = true;
       mesh.userData.mat.emissiveIntensity = 0.4 + blink * 1.6;
-    } else {
-      mesh.userData.barFill.material.opacity = 1;
-      mesh.userData.barFill.material.transparent = false;
     }
     const telling = (e.tell || 0) > 0;
     mesh.userData.tell.visible = telling;
