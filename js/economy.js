@@ -15,11 +15,11 @@ function openShop() {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'gcard shop-card' + (open ? '' : ' lock');
-    card.innerHTML = '<span class="ico">'+u.icon+'</span><b>'+u.name+'</b><small>'+have+'/'+u.max+' · '+(open ? '💎'+price(u) : 'Listo')+'</small>';
+    card.innerHTML = '<span class="ico">'+u.icon+'</span><b>'+u.name+'</b><small>'+have+'/'+u.max+' · '+(open ? '💎'+price(u) : 'Max')+'</small>';
     card.onclick = function(){
       if (!open) return;
       const c = price(u);
-      if (save.gems < c) { alert('Te faltan '+(c - save.gems)+' gemas.'); return; }
+      if (save.gems < c) { alert('Need '+(c - save.gems)+' more gems.'); return; }
       save.gems -= c;
       save.up[u.id] = have + 1;
       if (u.id === 'piel') save.skin = 'piel';
@@ -54,7 +54,7 @@ function pullGems() {
     const kind = g.kind || 'gem';
     if (kind === 'gem' || kind === 'heal' || kind === 'bomb' || kind === 'star') g.pull = true;
   });
-  banner('IMÁN');
+  banner('MAGNET');
   beep(880, 0.1, 'sine', 0.05);
 }
 
@@ -73,7 +73,7 @@ function collectPickup(g) {
   if (kind === 'star') {
     player.starMax = 5;
     player.star = 5;
-    banner('ESTRELLA');
+    banner('STAR');
     beep(740, 0.16, 'square', 0.06);
     return;
   }

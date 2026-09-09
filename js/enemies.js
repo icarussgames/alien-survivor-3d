@@ -78,7 +78,7 @@ function spawnBoss() {
     kit: first, move: 'shot', phase: 'cool', reward: bossesDown
   });
   bossLive = true;
-  banner(first ? 'JEFE · disparo y látigo' : 'JEFE');
+  banner(first ? 'BOSS · shots and whip' : 'BOSS');
   beep(90, 0.28, 'sawtooth', 0.07);
 }
 
@@ -95,7 +95,7 @@ function spawnMidBoss() {
     spd: 30 * sc.spd, kind:'mid', shoot:0, flash:0, whip:0, tell:0,
     tellColor:'#ff8844', explodeR:70, fuse:15, fuseMax:15
   });
-  banner('BOMBA');
+  banner('BOMB');
   beep(120, 0.18, 'sawtooth', 0.06);
 }
 
@@ -275,7 +275,7 @@ function hitEnemy(e, dmg) {
         gems.push({ kind:reward.kind, special:true, x:e.x, y:e.y, v:0, r:10 });
       }
       afterBossWaves();
-      banner(reward ? reward.label : 'Oleadas');
+      banner(reward ? reward.label : 'Waves');
       for (let i = 0; i < 4; i++) gems.push({ kind:'gem', x:e.x + (Math.random()-0.5)*24, y:e.y, v:1, r:7 });
     }
   } else if (e.kind === 'rock') {

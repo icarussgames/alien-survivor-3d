@@ -142,7 +142,7 @@ function importPackZip(file) {
       });
     });
     if (!found.length) {
-      throw new Error('El zip no trae fotos con el nombre esperado. Usa char1/base.jpg y el resto igual.');
+      throw new Error('Zip is missing expected photo names. Use char1/base.jpg and the same layout for the rest.');
     }
     return idbClear().then(function() {
       return Promise.all(found.map(function(item) { return idbPut(item.slot, item.blob); }));
@@ -157,10 +157,10 @@ function pickPackZip() {
     const file = input.files && input.files[0];
     if (!file) return;
     importPackZip(file).then(function(n) {
-      alert('Pack cargado en este navegador: ' + n + ' fotos. No se subió a ningún lado.');
+      alert('Pack loaded in this browser: ' + n + ' photos. Nothing was uploaded.');
       if (screen === 'gal') renderGal();
     }).catch(function(err) {
-      alert(err && err.message ? err.message : 'No pude leer ese zip.');
+      alert(err && err.message ? err.message : 'Could not read that zip.');
     });
   };
   input.click();
@@ -209,8 +209,8 @@ function openGal() {
 }
 
 function renderGal() {
-  const local = packCount ? ' · pack local: ' + packCount + ' fotos' : '';
-  document.getElementById('galHint').textContent = 'Gemas: ' + save.gems + ' · de por vida ' + (save.life|0) + local;
+  const local = packCount ? ' · local pack: ' + packCount + ' photos' : '';
+  document.getElementById('galHint').textContent = 'Gems: ' + save.gems + ' · lifetime ' + (save.life|0) + local;
   const clear = document.getElementById('packClear');
   if (clear) clear.disabled = !packCount;
   const tabs = document.getElementById('galTabs');
@@ -219,7 +219,7 @@ function renderGal() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'btn' + (i === galIndex ? '' : ' ghost');
-    b.textContent = 'Foto ' + char.level;
+    b.textContent = 'Photo ' + char.level;
     b.onclick = function(){ galIndex = i; openGal(); };
     tabs.appendChild(b);
   });
@@ -248,23 +248,23 @@ function renderGal() {
     btn.type = 'button';
     btn.className = 'btn buy';
     if (locked) {
-      sub.textContent = 'Se abre con ' + need + ' gemas de por vida';
-      btn.textContent = 'Bloqueada';
+      sub.textContent = 'Unlocks at ' + need + ' lifetime gems';
+      btn.textContent = 'Locked';
       btn.disabled = true;
     } else if (!buyKey || owned) {
       img.style.filter = 'none';
-      sub.textContent = buyKey ? 'Comprado' : 'Ya visible';
-      btn.textContent = 'Ver';
+      sub.textContent = buyKey ? 'Owned' : 'Already visible';
+      btn.textContent = 'View';
       btn.onclick = function(){ showFs(src); };
     } else if (!prereq) {
-      sub.textContent = 'Primero el outfit';
-      btn.textContent = 'Comprar';
+      sub.textContent = 'Buy the outfit first';
+      btn.textContent = 'Buy';
       btn.disabled = true;
     } else {
-      sub.textContent = 'Cuesta ' + cost + ' gemas';
-      btn.textContent = 'Comprar 💎' + cost;
+      sub.textContent = 'Costs ' + cost + ' gems';
+      btn.textContent = 'Buy 💎' + cost;
       btn.onclick = function(){
-        if (save.gems < cost) { alert('Te faltan ' + (cost - save.gems) + ' gemas.'); return; }
+        if (save.gems < cost) { alert('Need ' + (cost - save.gems) + ' more gems.'); return; }
         save.gems -= cost;
         if (!save.cosm) save.cosm = {};
         save.cosm[buyKey] = true;

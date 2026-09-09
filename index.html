@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Alien Survivor 3D</title>
-<link rel="stylesheet" href="css/style.css?v=15">
+<link rel="stylesheet" href="css/style.css?v=16">
 <script type="importmap">
 { "imports": { "three": "https://unpkg.com/three@0.170.0/build/three.module.js" } }
 </script>
@@ -19,7 +19,7 @@
     <div class="card hidden" id="padStatus"></div>
   </div>
   <div id="bossHud" class="hidden">
-    <span class="boss-label">JEFE</span>
+    <span class="boss-label">BOSS</span>
     <div class="boss-track"><i id="bossHp"></i></div>
   </div>
   <div id="bar"><i id="xp"></i></div>
@@ -30,77 +30,77 @@
 
   <div id="menu" class="overlay">
     <h1>Alien Survivor 3D</h1>
-    <p>El disparo es automático. En el celular usa el stick. Las curas y bombas se guardan y se usan después. Un jefe cada 3 minutos.</p>
-    <button class="btn" id="startBtn" type="button">EMPEZAR</button>
-    <button class="btn ghost" id="fullBtn" type="button">PANTALLA COMPLETA</button>
+    <p>Auto-fire. On phone use the stick. Heals and bombs go to inventory. A boss every 3 minutes.</p>
+    <button class="btn" id="startBtn" type="button">START</button>
+    <button class="btn ghost" id="fullBtn" type="button">FULLSCREEN</button>
     <div>
-      <button class="btn ghost" id="shopBtn" type="button">MEJORAS</button>
-      <button class="btn ghost" id="galBtn" type="button">GALERÍA</button>
+      <button class="btn ghost" id="shopBtn" type="button">UPGRADES</button>
+      <button class="btn ghost" id="galBtn" type="button">GALLERY</button>
       <button class="btn ghost" id="shipBtn" type="button">SHIP INSPECTOR</button>
     </div>
     <div>
-      <button class="btn ghost" id="packBtn" type="button">CARGAR PACK.ZIP</button>
-      <a class="btn ghost" href="pack.zip" download="pack.zip">PACK DE MUESTRA</a>
+      <button class="btn ghost" id="packBtn" type="button">LOAD PACK.ZIP</button>
+      <a class="btn ghost" href="pack.zip" download="pack.zip">SAMPLE PACK</a>
     </div>
-    <div class="tips">WASD o flechas. Q cura, E bomba. DualSense: stick/D-pad, Cruz cura, Círculo bomba. En Android pulsa un botón del mando una vez.</div>
+    <div class="tips">WASD or arrows. Q heal, E bomb. DualSense: stick/D-pad, Cross heal, Circle bomb. On Android press a pad button once.</div>
   </div>
 
   <div id="inspect" class="overlay hidden">
     <h1>Ship inspector</h1>
-    <p>La misma nave del juego. Arrastra para girarla. El plano de juego es X y Z. Y es altura.</p>
+    <p>Same ship as in-game. Drag to orbit. Play plane is X and Z. Y is up.</p>
     <canvas id="inspectC"></canvas>
-    <button class="btn ghost" id="inspectBack" type="button">VOLVER</button>
+    <button class="btn ghost" id="inspectBack" type="button">BACK</button>
   </div>
 
   <div id="over" class="overlay hidden">
-    <h1 class="bad">Caíste</h1>
-    <p>Tiempo: <b id="fTime" class="cyan">0:00</b><br>Gemas de la partida: <span id="fRun" class="mag">0</span><br>Gemas totales: <span id="fLife" class="mag">0</span></p>
-    <button class="btn" id="retryBtn" type="button">REINTENTAR</button>
+    <h1 class="bad">You fell</h1>
+    <p>Time: <b id="fTime" class="cyan">0:00</b><br>Run gems: <span id="fRun" class="mag">0</span><br>Total gems: <span id="fLife" class="mag">0</span></p>
+    <button class="btn" id="retryBtn" type="button">RETRY</button>
     <div>
-      <button class="btn ghost" id="shopBtn2" type="button">MEJORAS</button>
-      <button class="btn ghost" id="galBtn2" type="button">GALERÍA</button>
+      <button class="btn ghost" id="shopBtn2" type="button">UPGRADES</button>
+      <button class="btn ghost" id="galBtn2" type="button">GALLERY</button>
     </div>
   </div>
 
   <div id="stage" class="overlay hidden">
-    <h1>Etapa 1</h1>
-    <p>El jefe cayó. Las gemas ya están guardadas. Vuelve al menú para comprar mejoras y fotos.</p>
-    <p>Gemas: <span id="stageGems" class="mag">0</span></p>
-    <button class="btn" id="stageMenu" type="button">AL MENÚ</button>
+    <h1>Stage 1</h1>
+    <p>Boss down. Gems are saved. Back to the menu for upgrades and photos.</p>
+    <p>Gems: <span id="stageGems" class="mag">0</span></p>
+    <button class="btn" id="stageMenu" type="button">TO MENU</button>
   </div>
 
   <div id="level" class="overlay hidden">
-    <h1>Nivel</h1>
-    <p>Elige una stat para esta partida.</p>
+    <h1>Level up</h1>
+    <p>Pick a stat for this run.</p>
     <div id="picks"></div>
   </div>
 
   <div id="shop" class="overlay hidden">
-    <h1>Mejoras</h1>
-    <p>Gemas: <span id="shopGems" class="mag">0</span></p>
+    <h1>Upgrades</h1>
+    <p>Gems: <span id="shopGems" class="mag">0</span></p>
     <div class="scroll" id="shopList"></div>
-    <button class="btn ghost" id="shopBack" type="button">VOLVER</button>
-    <button class="btn ghost" id="wipe" type="button" style="font-size:.8rem;padding:6px 14px">Borrar progreso</button>
+    <button class="btn ghost" id="shopBack" type="button">BACK</button>
+    <button class="btn ghost" id="wipe" type="button" style="font-size:.8rem;padding:6px 14px">Clear progress</button>
   </div>
 
   <div id="gal" class="overlay hidden">
-    <h1>Galería</h1>
-    <p id="galHint">Gemas: 0</p>
+    <h1>Gallery</h1>
+    <p id="galHint">Gems: 0</p>
     <div class="gal-tabs" id="galTabs"></div>
     <div class="gal-shop" id="galShop"></div>
     <div>
-      <button class="btn ghost" id="packBtn2" type="button">CARGAR PACK.ZIP</button>
-      <a class="btn ghost" href="pack.zip" download="pack.zip">PACK DE MUESTRA</a>
-      <button class="btn ghost" id="packClear" type="button">QUITAR PACK</button>
+      <button class="btn ghost" id="packBtn2" type="button">LOAD PACK.ZIP</button>
+      <a class="btn ghost" href="pack.zip" download="pack.zip">SAMPLE PACK</a>
+      <button class="btn ghost" id="packClear" type="button">REMOVE PACK</button>
     </div>
-    <button class="btn ghost" id="galBack" type="button">VOLVER</button>
+    <button class="btn ghost" id="galBack" type="button">BACK</button>
     <input type="file" id="packFile" accept=".zip,application/zip" hidden>
   </div>
   <div id="lib" class="overlay hidden">
     <h1>Sets</h1>
-    <p>Gemas: <span id="libGems" class="mag">0</span></p>
+    <p>Gems: <span id="libGems" class="mag">0</span></p>
     <div class="lib-grid" id="libGrid"></div>
-    <button class="btn ghost" id="libBack" type="button">VOLVER</button>
+    <button class="btn ghost" id="libBack" type="button">BACK</button>
   </div>
   <div id="fs" class="hidden"><img id="fsImg" alt=""></div>
 </div>
@@ -116,19 +116,19 @@
   </div>
 </div>
 </div>
-<button id="fsBtn" type="button" aria-label="Pantalla completa">⛶</button>
-<script src="js/data.js?v=15"></script>
-<script src="js/state.js?v=15"></script>
-<script src="js/audio.js?v=15"></script>
-<script src="js/levels.js?v=15"></script>
-<script src="js/player.js?v=15"></script>
-<script src="js/items.js?v=15"></script>
-<script src="js/waves.js?v=15"></script>
-<script src="js/enemies.js?v=15"></script>
-<script src="js/economy.js?v=15"></script>
-<script src="js/gallery.js?v=15"></script>
-<script src="js/input.js?v=15"></script>
-<script src="js/main.js?v=15"></script>
-<script type="module" src="js/view.js?v=15"></script>
+<button id="fsBtn" type="button" aria-label="Fullscreen">⛶</button>
+<script src="js/data.js?v=16"></script>
+<script src="js/state.js?v=16"></script>
+<script src="js/audio.js?v=16"></script>
+<script src="js/levels.js?v=16"></script>
+<script src="js/player.js?v=16"></script>
+<script src="js/items.js?v=16"></script>
+<script src="js/waves.js?v=16"></script>
+<script src="js/enemies.js?v=16"></script>
+<script src="js/economy.js?v=16"></script>
+<script src="js/gallery.js?v=16"></script>
+<script src="js/input.js?v=16"></script>
+<script src="js/main.js?v=16"></script>
+<script type="module" src="js/view.js?v=16"></script>
 </body>
 </html>

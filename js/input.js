@@ -52,7 +52,7 @@ function onPadConnected(ev) {
   padName = gp.id || 'Gamepad';
   setPadStatus(true, isDualSenseLike(gp) ? 'DUALSENSE' : 'PAD');
   if (typeof banner === 'function' && (screen === 'menu' || screen === 'play')) {
-    banner(isDualSenseLike(gp) ? 'DUALSENSE' : 'MANDO');
+    banner(isDualSenseLike(gp) ? 'DUALSENSE' : 'GAMEPAD');
   }
 }
 
@@ -240,7 +240,7 @@ function toggleFullscreen() {
 function syncFsLabel() {
   const on = isFullscreen();
   const menu = document.getElementById('fullBtn');
-  if (menu) menu.textContent = on ? 'SALIR DE PANTALLA' : 'PANTALLA COMPLETA';
+  if (menu) menu.textContent = on ? 'EXIT FULLSCREEN' : 'FULLSCREEN';
   const icon = document.getElementById('fsBtn');
   if (icon) icon.textContent = on ? '⤢' : '⛶';
 }

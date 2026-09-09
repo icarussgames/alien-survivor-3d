@@ -4,17 +4,17 @@ const W = 600, H = 600, LS = 'as_v1';
 const WAVE = 180;
 
 const TREE = [
-  { id:'dano', name:'Daño+', desc:'Sube el daño base.', cost:15, max:5, icon:'💥' },
-  { id:'iman', name:'Imán', desc:'Atrae gemas.', cost:20, max:1, icon:'🧲' },
-  { id:'botas', name:'Botas', desc:'Más velocidad.', cost:25, max:1, icon:'👟' },
-  { id:'vida', name:'Vitalidad', desc:'+20 de vida máxima.', cost:30, max:1, icon:'❤️' },
-  { id:'cura0', name:'Cura inicial', desc:'Empiezas con +1 cura.', cost:18, max:2, icon:'💖' },
-  { id:'bomba0', name:'Bomba inicial', desc:'Empiezas con +1 bomba.', cost:22, max:2, icon:'💣' },
-  { id:'capCura', name:'Capacidad cura', desc:'+1 espacio de curas. Base 3.', cost:28, max:3, icon:'➕❤' },
-  { id:'capBomba', name:'Capacidad bomba', desc:'+1 espacio de bombas. Base 3.', cost:32, max:3, icon:'➕💣' },
-  { id:'orbe', name:'Orbe', desc:'Dos orbes que golpean.', cost:40, max:1, icon:'🟣' },
-  { id:'cono', name:'Cono', desc:'Ráfaga corta extra.', cost:55, max:1, icon:'🔶' },
-  { id:'piel', name:'Piel neón', desc:'Skin equipable.', cost:40, max:1, icon:'🌈' }
+  { id:'dano', name:'Damage+', desc:'Raises base damage.', cost:15, max:5, icon:'💥' },
+  { id:'iman', name:'Magnet', desc:'Pulls gems in.', cost:20, max:1, icon:'🧲' },
+  { id:'botas', name:'Boots', desc:'Move faster.', cost:25, max:1, icon:'👟' },
+  { id:'vida', name:'Vitality', desc:'+20 max HP.', cost:30, max:1, icon:'❤️' },
+  { id:'cura0', name:'Starting heal', desc:'Begin with +1 heal.', cost:18, max:2, icon:'💖' },
+  { id:'bomba0', name:'Starting bomb', desc:'Begin with +1 bomb.', cost:22, max:2, icon:'💣' },
+  { id:'capCura', name:'Heal capacity', desc:'+1 heal slot. Base 3.', cost:28, max:3, icon:'➕❤' },
+  { id:'capBomba', name:'Bomb capacity', desc:'+1 bomb slot. Base 3.', cost:32, max:3, icon:'➕💣' },
+  { id:'orbe', name:'Orb', desc:'Two orbs that hit enemies.', cost:40, max:1, icon:'🟣' },
+  { id:'cono', name:'Cone', desc:'Extra short burst.', cost:55, max:1, icon:'🔶' },
+  { id:'piel', name:'Neon skin', desc:'Equipable skin.', cost:40, max:1, icon:'🌈' }
 ];
 
 const CHARS = [

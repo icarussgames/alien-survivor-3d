@@ -36,13 +36,13 @@ function takenDmg(n) {
 
 function statLine(id) {
   if (id === 'spd') {
-    return 'Mov ' + moveNow() + ' · disparo ' + fireNow().toFixed(2) + 's';
+    return 'Move ' + moveNow() + ' · fire ' + fireNow().toFixed(2) + 's';
   }
   if (id === 'def') {
-    return 'Recibes ' + Math.round(Math.max(0.55, 1 - RUN.def * 0.075) * 100) + '%';
+    return 'Take ' + Math.round(Math.max(0.55, 1 - RUN.def * 0.075) * 100) + '%';
   }
-  if (id === 'mag') return 'Radio ' + magRadius();
-  return 'Daño ' + shotDmg();
+  if (id === 'mag') return 'Radius ' + magRadius();
+  return 'Damage ' + shotDmg();
 }
 
 function nextStatLine(id) {
@@ -66,7 +66,7 @@ function spreadNow() { return Math.max((player && player.mods && player.mods.spr
 
 // Un upgrade especial por jefe. Los siguientes se agregan acá.
 var BOSS_REWARDS = [
-  { kind:'fan', face:'✳️', label:'Disparo triple' }
+  { kind:'fan', face:'✳️', label:'Triple shot' }
 ];
 
 function bossReward(n) {

@@ -129,10 +129,10 @@ function confirmLevelPick() {
 
 function offerLevel() {
   const picks = [
-    { id:'spd', name:'+Speed', desc:'Más rápido al moverte y al disparar. ' + nextStatLine('spd') },
-    { id:'def', name:'+Def', desc:'Menos daño recibido. ' + nextStatLine('def') },
-    { id:'atk', name:'+Atk', desc:'Más daño a enemigos. ' + nextStatLine('atk') },
-    { id:'mag', name:'+Mag', desc:'Más radio para juntar gemas. ' + nextStatLine('mag') }
+    { id:'spd', name:'+Speed', desc:'Move and fire faster. ' + nextStatLine('spd') },
+    { id:'def', name:'+Def', desc:'Take less damage. ' + nextStatLine('def') },
+    { id:'atk', name:'+Atk', desc:'Deal more damage. ' + nextStatLine('atk') },
+    { id:'mag', name:'+Mag', desc:'Wider gem pickup radius. ' + nextStatLine('mag') }
   ];
   const box = document.getElementById('picks');
   box.innerHTML = '';
@@ -199,7 +199,7 @@ function beginStageClear(x, y) {
   }
   hyper = 1;
   stageClear = 2.4;
-  banner('ETAPA 1');
+  banner('STAGE 1');
   beep(70, 0.35, 'sawtooth', 0.08);
 }
 
