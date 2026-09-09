@@ -4,7 +4,7 @@
 function setScreen(name) {
   screen = name;
   window.asScreen = name;
-  ['menu','over','level','stage','shop','gal','lib','hud','bar','pad'].forEach(function(n){
+  ['menu','over','level','stage','shop','gal','lib','inspect','hud','bar','pad'].forEach(function(n){
     const el = document.getElementById(n);
     if (!el) return;
     const show = n === name || (name === 'play' && (n === 'hud' || n === 'bar' || n === 'pad'));
@@ -376,6 +376,8 @@ function boot() {
   document.getElementById('shopBtn').onclick = openShop;
   document.getElementById('shopBtn2').onclick = openShop;
   document.getElementById('galBtn').onclick = openGal;
+  document.getElementById('shipBtn').onclick = function(){ setScreen('inspect'); };
+  document.getElementById('inspectBack').onclick = function(){ setScreen('menu'); };
   document.getElementById('galBtn2').onclick = openGal;
   if (document.getElementById('libBack')) document.getElementById('libBack').onclick = openGal;
   document.getElementById('galBack').onclick = function(){ setScreen(backScreen === 'over' ? 'over' : 'menu'); };

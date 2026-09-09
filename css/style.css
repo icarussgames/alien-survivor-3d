@@ -114,3 +114,6 @@ body.land .side {
 }
 body.land .items { flex-direction:column; }
 body.land #stats { text-align:center; max-width:72px; line-height:1.35; }
+
+#inspectC { width:min(92%, 420px); height:min(52vw, 280px); border-radius:12px; border:1px solid rgba(0,255,255,.35); background:#12182e; touch-action:none; cursor:grab; }
+#inspectC:active { cursor:grabbing; }

@@ -684,7 +684,65 @@ window.renderFrame = function() {
   else placeShipIdle();
   if ((window.hyper || 0) > 0 && !roll) followCameraIfHyper();
   renderer.render(scene, camera);
+  paintInspector();
 };
+
+const inspectCanvas = document.getElementById('inspectC');
+const inspectRenderer = new THREE.WebGLRenderer({ canvas: inspectCanvas, antialias: true });
+inspectRenderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+inspectRenderer.setClearColor(0x12182e);
+const inspectScene = new THREE.Scene();
+inspectScene.add(new THREE.AmbientLight(0xc5d4ee, 1.2));
+const inspectKey = new THREE.DirectionalLight(0xffffff, 1.6);
+inspectKey.position.set(3, 6, 4);
+inspectScene.add(inspectKey);
+const inspectShip = makeShip();
+inspectShip.scale.set(1.6, 1.6, 1.6);
+inspectScene.add(inspectShip);
+const inspectCam = new THREE.PerspectiveCamera(40, 1, 0.1, 40);
+let inspectYaw = 0.7;
+let inspectPitch = 0.45;
+let inspectDrag = null;
+
+function placeInspectCam() {
+  const dist = 6.2;
+  const cp = Math.cos(inspectPitch);
+  inspectCam.position.set(
+    Math.sin(inspectYaw) * cp * dist,
+    Math.sin(inspectPitch) * dist + 0.4,
+    Math.cos(inspectYaw) * cp * dist
+  );
+  inspectCam.lookAt(0, 0.15, 0);
+}
+
+function paintInspector() {
+  if (!inspectCanvas || window.asScreen !== 'inspect') return;
+  const r = inspectCanvas.getBoundingClientRect();
+  if (r.width < 2 || r.height < 2) return;
+  inspectRenderer.setSize(r.width, r.height, false);
+  inspectCam.aspect = r.width / r.height;
+  inspectCam.updateProjectionMatrix();
+  placeInspectCam();
+  inspectRenderer.render(inspectScene, inspectCam);
+}
+
+if (inspectCanvas) {
+  inspectCanvas.addEventListener('pointerdown', function(ev) {
+    ev.preventDefault();
+    inspectCanvas.setPointerCapture(ev.pointerId);
+    inspectDrag = { x: ev.clientX, y: ev.clientY };
+  });
+  inspectCanvas.addEventListener('pointermove', function(ev) {
+    if (!inspectDrag) return;
+    inspectYaw += (ev.clientX - inspectDrag.x) * 0.01;
+    inspectPitch = Math.max(-1.1, Math.min(1.2, inspectPitch + (ev.clientY - inspectDrag.y) * 0.01));
+    inspectDrag.x = ev.clientX;
+    inspectDrag.y = ev.clientY;
+  });
+  function endInspect() { inspectDrag = null; }
+  inspectCanvas.addEventListener('pointerup', endInspect);
+  inspectCanvas.addEventListener('pointercancel', endInspect);
+}
 
 // first frame before the classic loop, in case the module is the one that paints menus
 resize();
